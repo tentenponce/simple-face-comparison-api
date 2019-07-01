@@ -1,5 +1,4 @@
-Click==7.0
-cmake==3.14.4
+cmake==3.13.3
 dlib==19.17.0
 face-recognition==1.2.3
 face-recognition-models==0.3.0
@@ -10,3 +9,4 @@ MarkupSafe==1.1.1
 numpy==1.16.4
 Pillow==6.0.0
 Werkzeug==0.15.4
+gunicorn
