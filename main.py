@@ -25,10 +25,18 @@ def get_ext(filename):
     return os.path.splitext(filename)[1]
 
 
+def get_percentage(result):
+    return 100 - (result * 100)
+
+
 # @param unknown_face image of the face in the ID
 # @param  known_faces to known_face9 image of the face to compare
 @app.route('/compare', methods=['POST'])
 def compare_faces():
+    # create tmp folder
+    if not os.path.exists('tmp'):
+        os.makedirs('tmp')
+
     # save unknown face
     unknown_face = request.files['unknown_face']
     unknown_face_filename = 'unknown_face' + get_ext(unknown_face.filename)
@@ -60,7 +68,7 @@ def compare_faces():
         except Exception as e:
             print(e)
 
-    return jsonify(results=results.tolist())
+    return jsonify(results=list(map(get_percentage, results.tolist())))
 
 
 if __name__ == '__main__':
