@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 import os
 import re
 
@@ -68,7 +70,7 @@ def compare_faces():
         except Exception as e:
             print(e)
 
-    return jsonify(results=list(map(get_percentage, results.tolist())))
+    return jsonify(list(map(get_percentage, results.tolist())))
 
 
 if __name__ == '__main__':
