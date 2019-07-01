@@ -62,13 +62,13 @@ def compare_faces():
     results = face_recognition.face_distance(known_faces_encoded, unknown_face_encoded)
 
     # remove tmp files
-    for file in os.listdir(app.config['UPLOAD_FOLDER']):
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], file)
-        try:
-            if os.path.isfile(file_path):
-                os.unlink(file_path)
-        except Exception as e:
-            print(e)
+    # for file in os.listdir(app.config['UPLOAD_FOLDER']):
+    #     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file)
+    #     try:
+    #         if os.path.isfile(file_path):
+    #             os.unlink(file_path)
+    #     except Exception as e:
+    #         print(e)
 
     return jsonify(list(map(get_percentage, results.tolist())))
 
