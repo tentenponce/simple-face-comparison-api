@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 
 import os
-import re
 
 import face_recognition
 from flask import Flask, request, jsonify
@@ -19,8 +18,7 @@ app.config['ALLOWED_EXTENSIONS'] = {'png', 'jpg', 'jpeg'}
 # 10 images only starting from 0 to 9.
 def valid_known_face(filename):
     return '.' in filename and \
-           filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS'] and \
-           bool(re.search('known_face[1-9]$', filename))
+           filename.rsplit('.', 1)[1] in app.config['ALLOWED_EXTENSIONS']
 
 
 def get_ext(filename):
@@ -45,24 +43,31 @@ def compare_faces():
     unknown_face.save(os.path.join(app.config['UPLOAD_FOLDER'], unknown_face_filename))
     unknown_face_file = face_recognition.load_image_file(
         os.path.join(app.config['UPLOAD_FOLDER'], unknown_face_filename))
-    unknown_face_encoded = face_recognition.face_encodings(unknown_face_file)[0]
+
+    try:
+        unknown_face_encoded = face_recognition.face_encodings(unknown_face_file)[0]
+    except IndexError:
+        response = jsonify({'message': 'Please check the quality of your ID.'})
+        response.status_code = 400
+        return response
 
     # save known faces
     known_faces = request.files.getlist('known_faces')
     known_faces_encoded = []
     i = 0
     for known_face in known_faces:
-        known_face_filename = 'known_face' + str(i) + get_ext(known_face.filename)
-        known_face.save(os.path.join(app.config['UPLOAD_FOLDER'], known_face_filename))
-        known_face_file = face_recognition.load_image_file(
-            os.path.join(app.config['UPLOAD_FOLDER'], known_face_filename))
+        if valid_known_face(known_face.filename):
+            known_face_filename = 'known_face' + str(i) + get_ext(known_face.filename)
+            known_face.save(os.path.join(app.config['UPLOAD_FOLDER'], known_face_filename))
+            known_face_file = face_recognition.load_image_file(
+                os.path.join(app.config['UPLOAD_FOLDER'], known_face_filename))
 
-        try:
-            known_faces_encoded.append(face_recognition.face_encodings(known_face_file)[0])
-        except IndexError:
-            pass
+            try:
+                known_faces_encoded.append(face_recognition.face_encodings(known_face_file)[0])
+            except IndexError:
+                pass
 
-        i += 1
+            i += 1
 
     results = face_recognition.face_distance(known_faces_encoded, unknown_face_encoded)
 
