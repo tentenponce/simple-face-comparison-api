@@ -56,19 +56,24 @@ def compare_faces():
         known_face.save(os.path.join(app.config['UPLOAD_FOLDER'], known_face_filename))
         known_face_file = face_recognition.load_image_file(
             os.path.join(app.config['UPLOAD_FOLDER'], known_face_filename))
-        known_faces_encoded.append(face_recognition.face_encodings(known_face_file)[0])
+
+        try:
+            known_faces_encoded.append(face_recognition.face_encodings(known_face_file)[0])
+        except IndexError:
+            pass
+
         i += 1
 
     results = face_recognition.face_distance(known_faces_encoded, unknown_face_encoded)
 
     # remove tmp files
-    # for file in os.listdir(app.config['UPLOAD_FOLDER']):
-    #     file_path = os.path.join(app.config['UPLOAD_FOLDER'], file)
-    #     try:
-    #         if os.path.isfile(file_path):
-    #             os.unlink(file_path)
-    #     except Exception as e:
-    #         print(e)
+    for file in os.listdir(app.config['UPLOAD_FOLDER']):
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], file)
+        try:
+            if os.path.isfile(file_path):
+                os.unlink(file_path)
+        except Exception as e:
+            print(e)
 
     return jsonify(list(map(get_percentage, results.tolist())))
 
